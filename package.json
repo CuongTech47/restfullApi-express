@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.3",
+    "express": "~4.16.1",
+    "express-validator": "^6.15.0",
+    "jsonwebtoken": "^9.0.0",
+    "moment-timezone": "^0.5.41",
+    "mongod": "^2.0.0",
+    "mongoose": "^7.0.0",
+    "mongoose-paginate-v2": "^1.7.1",
+    "morgan": "~1.9.1",
+    "nodemon": "^2.0.21"
+  }
+}
