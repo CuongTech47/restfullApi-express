@@ -17,7 +17,7 @@ router.post('/signup', [
       .withMessage('Email không đúng định dạng')
       .custom((value , {req})=>{
         // 
-        return authService.getUserFindByEmail(value)
+        return authService.getUserFindByEmailSignUp(value)
        
     })
     
@@ -37,7 +37,22 @@ router.post('/signup', [
 ],
 authController.signUp)
 
-router.post('/login',[],authController.signIn)
+router.post('/login',[
+    body('email')
+      .isEmail()
+      .withMessage('Email không đúng định dạng')
+      .custom((value , {req})=>{
+        // 
+        return authService.getUserFindByEmailSignIn(value)
+       
+    })
+    .normalizeEmail(),
+    // password validation
+    body('password', 'Mật khẩu phải chứa ít nhất 6 kí tự, 1 chữ viết hoa, 1 số và 1 kí tự đặc biệt')
+      .isLength({ min: 6 })
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/),
+
+],authController.signIn)
 
 
 
