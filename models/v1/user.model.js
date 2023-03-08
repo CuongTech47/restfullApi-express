@@ -7,14 +7,9 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   address: { type: String, required: true },
   role: { type: String, enum: ["admin", "user"], default: "user" },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  
+},
+{ timestamps: true}
+);
 
 module.exports = mongoose.model("Users", userSchema);
