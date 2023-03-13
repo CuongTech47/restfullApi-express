@@ -3,15 +3,22 @@ const Product = require("../../models/v1/product.model");
 class ProductService {
   async getProductById(productId) {
     const product = await Product.findById(productId);
+    if(!product){
+      const error = new Error('Product Not Found');
+      error.statusCode = 404;
+      throw error;
+      
+    }
+    
     return product;
   }
-  async getProducts(page, perPage) {
-    const options = {
-        page: page,
-        limit: perPage,
-      };
-    // const products = await Product.find();
-    const products = await Product.paginate({}, options);
+  async getProducts(query) {
+    // const options = {
+    //     page: page,
+    //     limit: perPage,
+    //   };
+    const products = await Product.find(query);
+    // const products = await Product.paginate({}, options);
     return products;
   }
   async addProduct(newProduct) {
@@ -22,7 +29,9 @@ class ProductService {
   async updateProduct(productId , updateProductData) {
     const product = await Product.findById(productId);
     if (!product) {
-      throw new Error("Product not found");
+      const error = new Error('Product Not Found');
+      error.statusCode = 400;
+      throw error;
     }
 
     Object.assign(product, updateProductData);
@@ -32,7 +41,9 @@ class ProductService {
   async deleteProduct(productId) {
     const product = await Product.findByIdAndDelete(productId);
     if (!product) {
-      throw new Error('Product not found');
+      const error = new Error('Product Not Found');
+      error.statusCode = 400;
+      throw error;
     }
 
     return product;

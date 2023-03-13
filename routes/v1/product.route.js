@@ -2,11 +2,14 @@ const express = require("express");
 const router = express.Router();
 const productController = require("../../controllers/v1/product.controller");
 const { body, validationResult } = require("express-validator");
+const isAuth = require('../../middleware/v1/isAuth')
 
-router.get("/", productController.getAllProduct);
+
+
+router.get("/",isAuth, productController.getAllProduct);
 
 router.post(
-  "/signup",
+  "/",isAuth,
   [
     body("name")
       .notEmpty()
@@ -51,10 +54,10 @@ router.post(
   productController.addProduct
 )
 
-router.get('/:id',productController.getproduct)
-router.delete('/:id',productController.deleteProduct)
+router.get('/:id',isAuth,productController.getproduct)
+router.delete('/:id',isAuth,productController.deleteProduct)
 
-router.patch('/:id',[
+router.put('/:id',isAuth,[
   body("name")
       .notEmpty()
       .withMessage("Tên sản phẩm không được để trống")
@@ -96,7 +99,7 @@ router.patch('/:id',[
 
 ],productController.updateProduct)
 
-
+router.put('/photo/:id',productController.productPhotoUpload)
 
 
 

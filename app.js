@@ -1,14 +1,17 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
 const db = require('./config/db');
 const cors = require('cors')
 const dotenv = require('dotenv')
 
-var indexRouter = require('./routes/index');
+const errorHandler = require('./middleware/v1/error')
 
+const indexRouter = require('./routes/index');
+
+const fileUpload = require('express-fileupload')
 
 
 var app = express();
@@ -28,16 +31,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+//file uploading
+app.use(fileUpload())
+
 indexRouter(app)
 
-app.use((error , req ,res , next)=>{
-    console.log(error)
-    const status = error.statusCode || 500
-    const message = error.message
-    res.status(status).json({
-        message : message
-    })
-})
+
+app.use(errorHandler)
+
+// app.use((error , req ,res , next)=>{
+//     console.log(error)
+//     const status = error.statusCode || 500
+//     const message = error.message
+//     res.status(status).json({
+//         message : message
+//     })
+// })
 
 
 module.exports = app;

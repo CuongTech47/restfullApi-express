@@ -6,16 +6,17 @@ class AuthService {
     async getUserFindByEmailSignUp (email) {
         const user = await User.findOne({email : email})
         if(user){
-          throw new Error('Email đã tồn tại!')
+          const error = new Error('Email đã tồn tại!');
+          error.statusCode = 400;
+          throw error;
         }
       }
     async getUserFindByEmailSignIn (email) {
         const user = await User.findOne({ email : email})
         if(!user){
-            // const error = new Error('Email không tồn tại vui lòng đăng kí !')
-            throw new Error('Email không tồn tại vui lòng đăng kí !')
-            // error.statusCode = 401
-            // throw error
+          const error = new Error('Email không tồn tại vui lòng đăng kí !');
+          error.statusCode = 400;
+          throw error;
             
         }
         return user
