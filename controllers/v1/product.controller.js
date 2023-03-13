@@ -1,7 +1,11 @@
 const productService = require("../../serverices/v1/product.service");
 const { validationResult } = require("express-validator");
 const ErrorResponse = require("../../utils/errorResponse");
-const Product = require('../../models/v1/product.model')
+const Product = require("../../models/v1/product.model");
+const dotenv = require('dotenv')
+
+const path = require('path')
+dotenv.config()
 class ProductContrller {
   //post product
   async addProduct(req, res, next) {
@@ -36,67 +40,61 @@ class ProductContrller {
   }
   //get all product
   async getAllProduct(req, res, next) {
-    
-
-
-
     try {
       let query;
 
-    //copy req.query
-    const reqQuery = { ...req.query };
+      //copy req.query
+      const reqQuery = { ...req.query };
 
-    // fields to exclude
+      // fields to exclude
 
-    const removeFields = ['select' , 'sort'];
+      const removeFields = ["select", "sort" , "page", "limit"];
 
-    // loop over removeFields and delete them from reqQuery
+      // loop over removeFields and delete them from reqQuery
 
-    removeFields.forEach((param) => delete reqQuery[param]);
+      removeFields.forEach((param) => delete reqQuery[param]);
 
-    
+      // create query string
+      let queryStr = JSON.stringify(reqQuery);
 
-    // create query string
-    let queryStr = JSON.stringify(reqQuery);
+      // create openrator ($gt , $gte , etc )
+      queryStr = queryStr.replace(
+        /\b(gt|gte|lt|lte|in)\b/g,
+        (match) => `$${match}`
+      );
 
-    // create openrator ($gt , $gte , etc )
-    queryStr = queryStr.replace(
-      /\b(gt|gte|lt|lte|in)\b/g,
-      (match) => `$${match}`
-    );
+      // find resource
+      query = Product.find(JSON.parse(queryStr));
 
-    // find resource
-    query = Product.find(JSON.parse(queryStr))
+      //Seclect Fields
+      if (req.query.select) {
+        const fields = req.query.select.split(",").join(" ");
+        // console.log(fields);
+        query = query.select(fields);
+      }
 
-    //Seclect Fields
-    if (req.query.select) {
-      const fields = req.query.select.split(",").join(" ");
-      // console.log(fields);
-      query = query.select(fields)
-    }
+      //sort
+      if (req.query.select) {
+        const fields = req.query.select.split(",").join(" ");
+        // console.log(fields);
+        query = query.select(fields);
+      }
+      if (req.query.sort) {
+        const sortBy = req.query.sort.split(",").join(" ");
+        query = query.sort(sortBy);
+      } else {
+        query = query.sort("-createdAt");
+      }
+      // pagination
 
-    //sort
-    if (req.query.select) {
-      const fields = req.query.select.split(",").join(" ");
-      // console.log(fields);
-      query = query.select(fields)
-    }
-    if(req.query.sort){
-      const sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy)
-    }else{
-      query = query.sort('-createdAt')
-    }
-    // pagination
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 2;
 
-    const page = parseInt(req.query.page, 10) || 1
-    const limit = parseInt(req.query.limit , 10) || 2
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const total = await Product.countDocuments();
 
-    const startIndex = (page -1 ) * limit
-    const endIndex = page * limit
-    const total = await Product.countDocuments()
-
-    query = query.skip(startIndex).limit(limit)
+      query = query.skip(startIndex).limit(limit);
       // const page = req.query.page || 1;
       // const limit = 10; // Số lượng sản phẩm trên mỗi trang
       // const products = await productService.getProducts();
@@ -104,26 +102,26 @@ class ProductContrller {
       // executing query
       const products = await query;
 
-      // pagination result 
-      const pagination = {}
+      // pagination result
+      const pagination = {};
 
-      if(endIndex < total) {
+      if (endIndex < total) {
         pagination.next = {
-          page : page + 1,
-          limit
-        }
+          page: page + 1,
+          limit,
+        };
       }
 
-      if(startIndex > 0 ) {
+      if (startIndex > 0) {
         pagination.prev = {
-          page : page -1 ,
-          limit
-        }
+          page: page - 1,
+          limit,
+        };
       }
 
       res.status(200).json({
         success: true,
-        count : products.length,
+        count: products.length,
         pagination,
         message: "Data fetched successfully",
         data: products,
@@ -241,25 +239,56 @@ class ProductContrller {
     }
   }
 
-  async productPhotoUpload(req , res , next) {
+  async productPhotoUpload(req, res, next) {
     try {
-      const product = await productService.getProductById(req.params.id)
+      let id = req.params.id
+      const product = await productService.getProductById(id);
 
-      if(!req.files) {
-        return next(
-          new ErrorResponse(`Please upload a file`,400)
-        )
+      // console.log(product)
+
+      if (!req.files) {
+        return next(new ErrorResponse(`Please upload a file`, 400));
       }
-      console.log(req.files)
       
+
+      const file = req.files.file
+
+      console.log(file)
+
+      //make sure the image is photo
+
+      if(!file.mimetype.startsWith('image')){
+        return next( new ErrorResponse (`Please upload an image file`,400))
+      }
+
+      // check filesize
+
+      if(file.size > process.env.MAX_FILE_UPLOAD){
+        return next( new ErrorResponse (`Please upload an image less than ${process.env.MAX_FILE_UPLOAD}`,400))
+      }
+      // crate custom filename
+      file.name = `photo_${product._id}${path.parse(file.name).ext}`
+
+      file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`,async err =>{
+        if(err) {
+          return next(new ErrorResponse(`Problem with file upload`,500))
+        }
+      })
+      await Product.findByIdAndUpdate(id , {imageUrl : file.name})
+
+      res.status(200).json({
+        success : true,
+        data : file.name
+      })
     } catch (err) {
       if (!err.statusCode) {
-        return next(
-          new ErrorResponse(
-            `Product not fount with id of ${req.params.id}`,
-            400
-          )
-        );
+        // return next(
+        //   new ErrorResponse(
+        //     `Product not fount with id of ${req.params.id}`,
+        //     400
+        //   )
+        // );
+        next(err)
       }
       if (err.statusCode) {
         res.status(err.statusCode).json({
@@ -269,8 +298,8 @@ class ProductContrller {
       } else {
         next(err);
       }
-    }
       
+    }
   }
 }
 
