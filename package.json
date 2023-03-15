@@ -15,12 +15,14 @@
     "express": "~4.16.1",
     "express-fileupload": "^1.4.0",
     "express-validator": "^6.15.0",
+    "helmet": "^6.0.1",
     "jsonwebtoken": "^9.0.0",
     "moment-timezone": "^0.5.41",
     "mongod": "^2.0.0",
     "mongoose": "^7.0.0",
     "mongoose-paginate-v2": "^1.7.1",
     "morgan": "~1.9.1",
+    "nodemailer": "^6.9.1",
     "nodemon": "^2.0.21"
   }
 }

@@ -23,7 +23,33 @@ class ProductContrller {
       });
     }
     try {
-      const newProduct = req.body;
+      const name = req.body.name
+      const description = req.body.description
+      const category = req.body.category
+      const price = req.body.price
+      const quantity = req.body.quantity
+     
+      if (!req.files) {
+        return next(new ErrorResponse(`Please upload a file`, 400));
+      }
+
+      let file = req.files.imageUrl
+      if(!file.mimetype.startsWith('image')){
+        return next( new ErrorResponse (`Please upload an image file`,400))
+      }
+      if(file.size > process.env.MAX_FILE_UPLOAD){
+        return next( new ErrorResponse (`Please upload an image less than ${process.env.MAX_FILE_UPLOAD}`,400))
+      }
+      file.name = `photo_${name}${path.parse(file.name).ext}`
+      file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`,async err =>{
+        if(err) {
+          return next(new ErrorResponse(`Problem with file upload`,500))
+        }
+      })
+      const imageUrl = file.name
+      
+      const newProduct = {name , description , category , price , quantity ,imageUrl };
+      console.log(newProduct)
       const product = await productService.addProduct(newProduct);
       res.status(201).json({
         success: true,

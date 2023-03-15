@@ -4,6 +4,7 @@ const authService = require('../../serverices/v1/auth.service')
 const authController = require("../../controllers/v1/auth.controller");
 const { body, validationResult } = require("express-validator");
 
+const {isAuth , authorize} = require('../../middleware/v1/auth')
 
 router.post('/signup', [
     // fullName validation
@@ -54,7 +55,11 @@ router.post('/login',[
 
 ],authController.signIn)
 
+router.get('/me',isAuth,authController.getMe)
 
+router.post('/forgotpassword', authController.forgotPassword)
+
+router.put("/resetpassword/:resettoken",authController.resetPassword)
 
 
 module.exports = router

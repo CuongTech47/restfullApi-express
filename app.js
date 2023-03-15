@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
+const helmet = require("helmet");
 const db = require('./config/db');
 const cors = require('cors')
 const dotenv = require('dotenv')
@@ -16,8 +16,14 @@ const fileUpload = require('express-fileupload')
 
 var app = express();
 app.use(cors())
+app.use(helmet())
 dotenv.config()
 db.connect()
+
+
+//cookie parser
+
+app.use(cookieParser())
 
 // Setup middleware to set response header to application/json
 // app.use(function(req, res, next) {

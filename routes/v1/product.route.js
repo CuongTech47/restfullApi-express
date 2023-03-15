@@ -2,14 +2,14 @@ const express = require("express");
 const router = express.Router();
 const productController = require("../../controllers/v1/product.controller");
 const { body, validationResult } = require("express-validator");
-const isAuth = require('../../middleware/v1/isAuth')
+// const isAuth = require('../../middleware/v1/isAuth')
+const {isAuth, authorize} = require('../../middleware/v1/auth')
 
 
-
-router.get("/",isAuth, productController.getAllProduct);
+router.get("/", productController.getAllProduct);
 
 router.post(
-  "/",isAuth,
+  "/",isAuth,authorize('user','superAdmin'),
   [
     body("name")
       .notEmpty()
@@ -26,9 +26,9 @@ router.post(
       .notEmpty()
       .withMessage("Mô tả sản phẩm không được để trống"),
     // body('price').notEmpty().withMessage('Giá sản phẩm không được để trống').isNumeric().withMessage('Giá sản phẩm phải là số'),
-    body("imageUrl")
-      .notEmpty()
-      .withMessage("Đường dẫn hình ảnh không được để trống"),
+    // body("imageUrl")
+    //   .notEmpty()
+    //   .withMessage("Đường dẫn hình ảnh không được để trống"),
     body("quantity")
       .notEmpty()
       .withMessage("Số lượng sản phẩm không được để trống")
@@ -54,10 +54,10 @@ router.post(
   productController.addProduct
 )
 
-router.get('/:id',isAuth,productController.getproduct)
-router.delete('/:id',isAuth,productController.deleteProduct)
+router.get('/:id',productController.getproduct)
+router.delete('/:id',isAuth,authorize('user','superAdmin'),productController.deleteProduct)
 
-router.put('/:id',isAuth,[
+router.put('/:id',isAuth,authorize('user','superAdmin'),[
   body("name")
       .notEmpty()
       .withMessage("Tên sản phẩm không được để trống")
@@ -99,7 +99,7 @@ router.put('/:id',isAuth,[
 
 ],productController.updateProduct)
 
-router.put('/photo/:id',productController.productPhotoUpload)
+router.put('/photo/:id',isAuth , authorize('superAdmin','user'),productController.productPhotoUpload)
 
 
 
