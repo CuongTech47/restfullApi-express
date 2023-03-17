@@ -67,91 +67,92 @@ class ProductContrller {
   //get all product
   async getAllProduct(req, res, next) {
     try {
-      let query;
+      // let query;
 
-      //copy req.query
-      const reqQuery = { ...req.query };
+      // //copy req.query
+      // const reqQuery = { ...req.query };
 
-      // fields to exclude
+      // // fields to exclude
 
-      const removeFields = ["select", "sort" , "page", "limit"];
+      // const removeFields = ["select", "sort" , "page", "limit"];
 
-      // loop over removeFields and delete them from reqQuery
+      // // loop over removeFields and delete them from reqQuery
 
-      removeFields.forEach((param) => delete reqQuery[param]);
+      // removeFields.forEach((param) => delete reqQuery[param]);
 
-      // create query string
-      let queryStr = JSON.stringify(reqQuery);
+      // // create query string
+      // let queryStr = JSON.stringify(reqQuery);
 
-      // create openrator ($gt , $gte , etc )
-      queryStr = queryStr.replace(
-        /\b(gt|gte|lt|lte|in)\b/g,
-        (match) => `$${match}`
+      // // create openrator ($gt , $gte , etc )
+      // queryStr = queryStr.replace(
+      //   /\b(gt|gte|lt|lte|in)\b/g,
+      //   (match) => `$${match}`
+      // );
+
+      // // find resource
+      // query = Product.find(JSON.parse(queryStr));
+
+      // //Seclect Fields
+      // if (req.query.select) {
+      //   const fields = req.query.select.split(",").join(" ");
+      //   // console.log(fields);
+      //   query = query.select(fields);
+      // }
+
+      // //sort
+      // if (req.query.select) {
+      //   const fields = req.query.select.split(",").join(" ");
+      //   // console.log(fields);
+      //   query = query.select(fields);
+      // }
+      // if (req.query.sort) {
+      //   const sortBy = req.query.sort.split(",").join(" ");
+      //   query = query.sort(sortBy);
+      // } else {
+      //   query = query.sort("-createdAt");
+      // }
+      // // pagination
+
+      // const page = parseInt(req.query.page, 10) || 1;
+      // const limit = parseInt(req.query.limit, 10) || 2;
+
+      // const startIndex = (page - 1) * limit;
+      // const endIndex = page * limit;
+      // const total = await Product.countDocuments();
+
+      // query = query.skip(startIndex).limit(limit);
+      // // const page = req.query.page || 1;
+      // // const limit = 10; // Số lượng sản phẩm trên mỗi trang
+      // // const products = await productService.getProducts();
+
+      // // executing query
+      // const products = await query;
+
+      // // pagination result
+      // const pagination = {};
+
+      // if (endIndex < total) {
+      //   pagination.next = {
+      //     page: page + 1,
+      //     limit,
+      //   };
+      // }
+
+      // if (startIndex > 0) {
+      //   pagination.prev = {
+      //     page: page - 1,
+      //     limit,
+      //   };
+      // }
+
+      res.status(200).json(
+        res.advancedResults
+        // success: true,
+        // count: products.length,
+        // pagination,
+        // message: "Data fetched successfully",
+        // data: products,
       );
-
-      // find resource
-      query = Product.find(JSON.parse(queryStr));
-
-      //Seclect Fields
-      if (req.query.select) {
-        const fields = req.query.select.split(",").join(" ");
-        // console.log(fields);
-        query = query.select(fields);
-      }
-
-      //sort
-      if (req.query.select) {
-        const fields = req.query.select.split(",").join(" ");
-        // console.log(fields);
-        query = query.select(fields);
-      }
-      if (req.query.sort) {
-        const sortBy = req.query.sort.split(",").join(" ");
-        query = query.sort(sortBy);
-      } else {
-        query = query.sort("-createdAt");
-      }
-      // pagination
-
-      const page = parseInt(req.query.page, 10) || 1;
-      const limit = parseInt(req.query.limit, 10) || 2;
-
-      const startIndex = (page - 1) * limit;
-      const endIndex = page * limit;
-      const total = await Product.countDocuments();
-
-      query = query.skip(startIndex).limit(limit);
-      // const page = req.query.page || 1;
-      // const limit = 10; // Số lượng sản phẩm trên mỗi trang
-      // const products = await productService.getProducts();
-
-      // executing query
-      const products = await query;
-
-      // pagination result
-      const pagination = {};
-
-      if (endIndex < total) {
-        pagination.next = {
-          page: page + 1,
-          limit,
-        };
-      }
-
-      if (startIndex > 0) {
-        pagination.prev = {
-          page: page - 1,
-          limit,
-        };
-      }
-
-      res.status(200).json({
-        success: true,
-        count: products.length,
-        pagination,
-        message: "Data fetched successfully",
-        data: products,
-      });
     } catch (err) {
       res.status(500).json({
         success: false,

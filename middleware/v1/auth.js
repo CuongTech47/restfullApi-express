@@ -22,6 +22,7 @@ exports.isAuth = async(req , res , next)=>{
     try {
         decodedToken = jwt.verify(token , process.env.JWT_SECRET)
         req.user = await User.findById(decodedToken.id)
+        
         next()
     } catch (err) {
         return next(

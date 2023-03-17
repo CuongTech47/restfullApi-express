@@ -15,14 +15,14 @@ router.post('/signup', [
     // email validation
     body('email')
       .isEmail()
-      .withMessage('Email không đúng định dạng')
-      .custom((value , {req})=>{
-        // 
-        return authService.getUserFindByEmailSignUp(value)
+      .withMessage('Email không đúng định dạng'),
+    //   .custom((value , {req})=>{
+    //     // 
+    //     return authService.getUserFindByEmailSignUp(value)
        
-    })
+    // })
     
-    .normalizeEmail(),
+    // .normalizeEmail(),
     // password validation
     body('password', 'Mật khẩu phải chứa ít nhất 6 kí tự, 1 chữ viết hoa, 1 số và 1 kí tự đặc biệt')
       .isLength({ min: 6 })
@@ -61,5 +61,7 @@ router.post('/forgotpassword', authController.forgotPassword)
 
 router.put("/resetpassword/:resettoken",authController.resetPassword)
 
+router.put("/updatedetails",isAuth,authController.updateDetails)
+router.put("/updatepassword",isAuth,authController.updatePassword)
 
 module.exports = router

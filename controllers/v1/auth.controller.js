@@ -22,21 +22,30 @@ class AuthControler {
       });
     }
     try {
-      const email = req.body.email;
-      const fullName = req.body.fullName;
-      const passwordHashed = req.body.password;
-      const phone = req.body.phone;
-      const address = req.body.address;
+      const { email, fullName, phone, address, password } = req.body;
 
-      var salt = await bcrypt.genSaltSync(10);
-      const password = await bcrypt.hashSync(passwordHashed, salt);
+      const user = await userModel.findOne({ email: email });
 
-      const newUser = { email, fullName, phone, address, password };
-      const user = await userService.addUser(newUser);
+      //check user
+      if (user) {
+        return next(new ErrorResponse("Email đã tồn tại!", 400));
+      }
+
+      const newUser = await userModel.create({
+        email,
+        fullName,
+        phone,
+        address,
+        password,
+      });
+
+      // const user = await userService.addUser(newUser);
+
       res.status(201).json({
         success: true,
         message: "Thêm User thành công",
-        userId: user._id,
+
+        userId: newUser._id,
       });
     } catch (err) {
       if (!err.statusCode) {
@@ -53,8 +62,6 @@ class AuthControler {
     const email = req.body.email;
     const password = req.body.password;
 
-    console.log(req.body)
-
     // validate email vs password
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -66,41 +73,38 @@ class AuthControler {
       });
     }
 
-    //check user 
+    //check user
 
-    const user = await userModel.findOne({email}).select('+password')
-    if(!user) {
-      return next(new ErrorResponse(`Invalid credentials`,401))
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return next(new ErrorResponse(`Invalid credentials`, 401));
     }
 
-    const isMatch = await user.matchPassword(password)
+    console.log(password);
 
-    if(!isMatch) {
-      return next(new ErrorResponse(`Invalid credentials`,401))
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      return next(new ErrorResponse(`Invalid credentials`, 401));
     }
 
-
-  
-    sendTokenResponse(user,200,res)
+    sendTokenResponse(user, 200, res);
     // res.status(200).json({
     //   success: true,
     //   data: user,
     // });
-    function sendTokenResponse (user , statusCode , res){
-      const token = user.getSignedJwtToken()
+    function sendTokenResponse(user, statusCode, res) {
+      const token = user.getSignedJwtToken();
       const options = {
         expires: new Date(
           Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 1000
         ),
         httpOnly: true,
       };
-      res.status(statusCode)
-      .cookie("token", token, options)
-      .json({
+      res.status(statusCode).cookie("token", token, options).json({
         success: true,
-        token
-      })
-   
+        token,
+      });
     }
 
     // const user = await userModel.create({
@@ -201,7 +205,7 @@ class AuthControler {
       console.log(err);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
-      await user.save({ validateBeforeSave: false })
+      await user.save({ validateBeforeSave: false });
       return next(new ErrorResponse("Email could not be sent ", 500));
     }
     // res.status(200).json({
@@ -222,7 +226,6 @@ class AuthControler {
       resetPasswordExpire: { $gt: Date.now() },
     });
 
-    console.log(user)
     if (!user) {
       return next(new ErrorResponse("Invalid token", 400));
     }
@@ -232,30 +235,87 @@ class AuthControler {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
-    sendTokenResponse(user,200,res)
+    console.log(user);
+    sendTokenResponse(user, 200, res);
     // res.status(200).json({
     //   success: true,
     //   data: user,
     // });
-    function sendTokenResponse (user , statusCode , res){
-      const token = user.getSignedJwtToken()
+    function sendTokenResponse(user, statusCode, res) {
+      const token = user.getSignedJwtToken();
       const options = {
         expires: new Date(
           Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 1000
         ),
         httpOnly: true,
       };
-      res.status(statusCode)
-      .cookie("token", token, options)
-      .json({
+      res.status(statusCode).cookie("token", token, options).json({
         success: true,
-        token
-      })
-   
+        token,
+      });
     }
   }
 
-  
+  async updateDetails(req, res, next) {
+    const { email, fullName, phone, address, password } = req.body;
+    const fieldsToUpdate = req.body;
+
+    const user = await userModel.findOne({ email: email });
+
+   
+    if (user) {
+      return next(
+        new ErrorResponse("Email đã tồn tại vui lòng nhập Email khác!", 401)
+      );
+    }
+    
+
+    const newUser = await userModel.findByIdAndUpdate(
+      req.user.id,
+      fieldsToUpdate,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    // if(user){
+    //   return next(new ErrorResponse(`Email nay da ton tai trong he thong`,400))
+    // }
+
+    res.status(200).json({
+      success: true,
+      data: newUser,
+    });
+  }
+  async updatePassword(req , res ,next) {
+    const user = await userModel.findById(req.user.id)
+
+    // check password cu
+    if(!(await user.matchPassword(req.body.currentPassword))){
+      new ErrorResponse("Mật khẩu không chính xác!", 401)
+    }
+
+    user.password = req.body.newPassword
+    await user.save()
+
+
+    sendTokenResponse(user, 200, res);
+
+    function sendTokenResponse(user, statusCode, res) {
+      const token = user.getSignedJwtToken();
+      const options = {
+        expires: new Date(
+          Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 1000
+        ),
+        httpOnly: true,
+      };
+      res.status(statusCode).cookie("token", token, options).json({
+        success: true,
+        token,
+      });
+    }
+
+  }
 }
 
 module.exports = new AuthControler();

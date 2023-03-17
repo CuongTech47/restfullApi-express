@@ -5,8 +5,12 @@ const { body, validationResult } = require("express-validator");
 // const isAuth = require('../../middleware/v1/isAuth')
 const {isAuth, authorize} = require('../../middleware/v1/auth')
 
+const advancedResults = require('../../middleware/v1/advancedResults')
 
-router.get("/", productController.getAllProduct);
+const productModel = require('../../models/v1/product.model')
+
+
+router.get("/", advancedResults(productModel ),productController.getAllProduct);
 
 router.post(
   "/",isAuth,authorize('user','superAdmin'),

@@ -18,13 +18,13 @@ const userSchema = new mongoose.Schema(
 
 //Encrpt password using bcrypt
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next()
   }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  console.log(this.password)
 });
 // Sign JWT and return
 
@@ -41,6 +41,9 @@ userSchema.methods.getSignedJwtToken = function () {
 //Match user entered password to hashed password
 
 userSchema.methods.matchPassword = async function(enteredPassword) {
+  console.log(enteredPassword)
+  
+  console.log(await bcrypt.compare(enteredPassword , this.password))
   return await bcrypt.compare(enteredPassword , this.password)
 }
 
