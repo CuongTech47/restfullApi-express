@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const db = require('./config/db');
 const cors = require('cors')
 const dotenv = require('dotenv')
+const admin = require('firebase-admin');
 
 const errorHandler = require('./middleware/v1/error')
 
@@ -19,6 +20,8 @@ app.use(cors())
 app.use(helmet())
 dotenv.config()
 db.connect()
+
+
 
 
 //cookie parser
@@ -37,6 +40,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+//test auth firebase
+
+const serviceAccount = require('./utils/serviceAccount.json')
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://express-auth-f1313-default-rtdb.firebaseio.com/'
+  })
 
 //file uploading
 app.use(fileUpload())

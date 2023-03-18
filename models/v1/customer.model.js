@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const customerSchema = new mongoose.Schema({
-  fullName: {
+  displayName: {
     type: String,
     required: true
   },
@@ -10,17 +10,27 @@ const customerSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  emailVerified : {
+    type : Boolean
+  },
   phone: {
+    type: String,
+    default: null,
+   
+  },
+  photoUrl: {
     type: String,
     required: true
   },
   address: {
     type: String,
-    required: true
+    default: null,
+   
   },
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Orders',
+   
   }],
   created_at: {
     type: Date,
@@ -32,6 +42,5 @@ const customerSchema = new mongoose.Schema({
   }
 });
 
-const Customer = mongoose.model('Customers', customerSchema);
+module.exports = mongoose.model('Customers', customerSchema);
 
-module.exports = Customer;

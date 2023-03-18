@@ -58,7 +58,7 @@ router.post(
   productController.addProduct
 )
 
-router.get('/:id',productController.getproduct)
+router.get('/:id',isAuth,authorize('user','superAdmin'),productController.getproduct)
 router.delete('/:id',isAuth,authorize('user','superAdmin'),productController.deleteProduct)
 
 router.put('/:id',isAuth,authorize('user','superAdmin'),[
