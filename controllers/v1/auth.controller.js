@@ -76,11 +76,13 @@ class AuthControler {
     //check user
 
     const user = await userModel.findOne({ email });
+
+    // console.log(user.getSignedJwtToken())
     if (!user) {
       return next(new ErrorResponse(`Invalid credentials`, 401));
     }
 
-    console.log(password);
+    
 
     const isMatch = await user.matchPassword(password);
 
@@ -95,6 +97,7 @@ class AuthControler {
     // });
     function sendTokenResponse(user, statusCode, res) {
       const token = user.getSignedJwtToken();
+      
       const options = {
         expires: new Date(
           Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 1000

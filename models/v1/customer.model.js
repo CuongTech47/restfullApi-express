@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const jwt = require("jsonwebtoken");
 const customerSchema = new mongoose.Schema({
   displayName: {
     type: String,
@@ -41,6 +42,18 @@ const customerSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+
+
+customerSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRE }
+  );
+};
 
 module.exports = mongoose.model('Customers', customerSchema);
 
