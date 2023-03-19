@@ -101,6 +101,18 @@ class CustomerController {
       );
     }
   }
+  async getMe(req , res , next) {
+    console.log(req.customer)
+    const customer = await customerModel.findById(req.customer.id)
+    res.status(200).json({
+      success : true,
+      data : customer
+    })
+  }
+  async updateDetails (req , res , next) {
+    
+
+  }
 }
 
 module.exports = new CustomerController();

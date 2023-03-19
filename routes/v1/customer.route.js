@@ -13,8 +13,13 @@ router.post('/login',customerController.login)
 
 router.get('/',isAuth,authorize('user','superAdmin'),advancedResults(customerModel),customerController.getAllCustomer)
 
-router.get('/:id',isAuthFirebase,customerController.getCustomer)
 
+
+router.get('/me',isAuthFirebase,customerController.getMe)
 // router.put('/:id')
+
+router.get('/admin/:id',isAuth,authorize('user','superAdmin'),customerController.getCustomer)
+
+router.put('/updatedetails',customerController.updateDetails)
 
 module.exports = router

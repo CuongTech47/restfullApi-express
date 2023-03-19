@@ -21,10 +21,8 @@ exports.isAuthFirebase = async(req , res , next)=>{
 
     try {
         decodedToken = jwt.verify(token , process.env.JWT_SECRET)
-        req.user = await Customer.findById(decodedToken.id)
-
-        console.log(req.user)
-        
+        req.customer = await Customer.findById(decodedToken.id)
+        console.log(decodedToken)
         next()
     } catch (err) {
         return next(
