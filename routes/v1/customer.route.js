@@ -20,6 +20,9 @@ router.get('/me',isAuthFirebase,customerController.getMe)
 
 router.get('/admin/:id',isAuth,authorize('user','superAdmin'),customerController.getCustomer)
 
-router.put('/updatedetails',customerController.updateDetails)
+router.put('/updatedetails',isAuthFirebase,customerController.updateDetails)
+
+router.put('/updateorders',isAuthFirebase ,customerController.updateOrders)
+
 
 module.exports = router

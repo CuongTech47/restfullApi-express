@@ -31,7 +31,6 @@ const customerSchema = new mongoose.Schema({
   orders: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Orders',
-   
   }],
   created_at: {
     type: Date,

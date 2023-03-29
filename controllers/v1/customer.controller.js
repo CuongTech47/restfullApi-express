@@ -110,8 +110,65 @@ class CustomerController {
     })
   }
   async updateDetails (req , res , next) {
-    
+    // const {phone , address   } = req.body
+    try {
+      console.log(req.body)
+      const email = req.customer.email
+      console.log(email)
+      const fieldsToUpdate = req.body;
+  
+      const customer = await customerModel.findOne({ email : email})
+  
+      if(customer) {
+        const newCustomer = await customerModel.findByIdAndUpdate(
+          req.customer.id,
+          fieldsToUpdate,
+          {
+            new : true,
+            runValidators : true
+          }
+        )
+        res.status(200).json({
+          success : true,
+          data : newCustomer
+        })
+      }
+      
+    } catch (error) {
+      return next(
+        new ErrorResponse("Email khong tồn tại vui lòng nhập Email khác!", 401)
+      );
+    }
+   
 
+  }
+  async updateOrders(req , res , next){
+    try {
+      const orderId = req.body.orders
+
+      
+      const fieldsToUpdate = orderId;
+      const email = req.customer.email
+      const customer = await customerModel.findOne({ email : email})
+      if(customer){
+        const newCustomer = await customerModel.findByIdAndUpdate(
+          req.customer.id,
+          {orders : fieldsToUpdate},
+          {
+            new : true,
+            runValidators : true
+          }
+        )
+        res.status(200).json({
+          success : true,
+          data : newCustomer
+        })
+
+      }
+    } catch (err) {
+      
+    }
+    
   }
 }
 

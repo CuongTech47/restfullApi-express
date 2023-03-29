@@ -293,7 +293,7 @@ class AuthControler {
   async updatePassword(req , res ,next) {
     const user = await userModel.findById(req.user.id)
 
-    // check password cu
+    // check password curent
     if(!(await user.matchPassword(req.body.currentPassword))){
       new ErrorResponse("Mật khẩu không chính xác!", 401)
     }

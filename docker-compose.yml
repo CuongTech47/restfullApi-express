@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+  node:
+    container_name: express-api-server
+    build:
+      context: .
+      dockerfile: D:\ProjectApi\server\Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    command: npm start
+    networks:
+      - common
+    environment:
+      HOST : 3000
+      MONGODB_URL : 'mongodb://mongo/mongodb-express'
+
+      FILE_UPLOAD_PATH  : './public/uploads'
+
+      MAX_FILE_UPLOAD : 1000000
+
+      JWT_COOKIE_EXPIRE : 30
+
+      SMTP_HOST : 'sandbox.smtp.mailtrap.io'
+      SMTP_PORT : 2525
+
+      SMTP_EMAIL : b0be8709f646c6
+
+      SMTP_PASSWORD : ffaa589ecd6cc9
+
+      FROM_EMAIL : 'cuongtech47@gmail.com'
+
+      FROM_NAME : 'NgocCuong'
+
+      JWT_SECRET : HHHDSANNADSAhsda123
+
+      JWT_EXPIRE : '2h'
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+    networks:
+      - common
+networks:
+  common:
